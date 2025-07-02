@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+// Add default admin to localStorage if not present
+const ensureDefaultAdmin = () => {
+  if (typeof window === 'undefined') return;
+  let users = [];
+  try {
+    users = JSON.parse(localStorage.getItem('users') || '[]');
+  } catch {
+    users = [];
+  }
+  // Update admin email to admin@gmail.com
+  const adminExists = users.some(u => u.email === 'admin@gmail.com' && u.role === 'admin');
+  if (!adminExists) {
+    users.push({
+      id: '1',
+      name: 'Hari',
+      email: 'admin@gmail.com',
+      password: 'Hari@9652',
+      role: 'admin'
+    });
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+};
+
 const Register = ({ onRegister }) => {
+  useEffect(() => {
+    ensureDefaultAdmin();
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    role: 'candidate'
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -24,9 +50,12 @@ const Register = ({ onRegister }) => {
     }
 
     try {
-      // Get existing users
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
+      let users = [];
+      try {
+        users = JSON.parse(localStorage.getItem('users') || '[]');
+      } catch {
+        users = [];
+      }
       // Check if user already exists
       const existingUser = users.find(u => u.email === formData.email);
       if (existingUser) {
@@ -35,13 +64,13 @@ const Register = ({ onRegister }) => {
         return;
       }
 
-      // Create new user
+      // Create new user with default role (pending)
       const newUser = {
         id: Date.now().toString(),
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role
+        role: 'pending' // Default role, to be set by admin
       };
 
       // Save to localStorage
@@ -131,19 +160,7 @@ const Register = ({ onRegister }) => {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Role</Form.Label>
-                <Form.Select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="candidate">Candidate</option>
-                  <option value="lead">Lead</option>
-                  <option value="admin">Admin</option>
-                </Form.Select>
-              </Form.Group>
+              {/* Role selection removed. Admin will assign roles. */}
 
               <Button 
                 variant="primary" 
