@@ -11,12 +11,36 @@ import CandidateForm from './components/CandidateForm';
 import CandidateList from './components/CandidateList';
 import Analytics from './components/Analytics';
 import Navbar from './components/Navbar';
+import NotFound from './pages/NotFound';
+
+// Ensure default admin exists on app load
+const ensureDefaultAdmin = () => {
+  if (typeof window === 'undefined') return;
+  let users = [];
+  try {
+    users = JSON.parse(localStorage.getItem('users') || '[]');
+  } catch {
+    users = [];
+  }
+  const adminExists = users.some(u => u.email === 'admin@gmail.com' && u.role === 'admin');
+  if (!adminExists) {
+    users.push({
+      id: '1',
+      name: 'Hari',
+      email: 'admin@gmail.com',
+      password: 'Hari@9652',
+      role: 'admin'
+    });
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+};
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    ensureDefaultAdmin(); // Always create admin on app load
     // Check if user is logged in from localStorage
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
