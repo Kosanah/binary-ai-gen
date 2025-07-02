@@ -50,4 +50,4 @@ const NavigationBar = ({ user, onLogout }) => {
   );
 };
 
-export default NavigationBar; 
+export default NavigationBar;
