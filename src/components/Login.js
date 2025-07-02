@@ -6,8 +6,7 @@ import { toast } from 'react-toastify';
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    role: 'candidate'
+    password: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -20,8 +19,7 @@ const Login = ({ onLogin }) => {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       const user = users.find(u => 
         u.email === formData.email && 
-        u.password === formData.password && 
-        u.role === formData.role
+        u.password === formData.password
       );
 
       if (user) {
@@ -33,7 +31,7 @@ const Login = ({ onLogin }) => {
         });
         toast.success('Login successful!');
       } else {
-        toast.error('Invalid credentials or role!');
+        toast.error('Invalid credentials!');
       }
     } catch (error) {
       toast.error('Login failed!');
@@ -81,20 +79,6 @@ const Login = ({ onLogin }) => {
                   required
                   placeholder="Enter your password"
                 />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Role</Form.Label>
-                <Form.Select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="candidate">Candidate</option>
-                  <option value="lead">Lead</option>
-                  <option value="admin">Admin</option>
-                </Form.Select>
               </Form.Group>
 
               <Button 
