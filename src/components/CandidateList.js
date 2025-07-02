@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, Row, Col, Modal, Form, Badge, InputGroup } from 'react-bootstrap';
+import { Table, Button, Card, Row, Col, Modal, Form, Badge } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -53,7 +53,7 @@ const CandidateList = ({ user }) => {
     try {
       const updatedData = {
         ...editingCandidate,
-        morningApplications: parseInt(editingCandidate.morningApplications) || 0,
+        morningApplications: editingCandidate.morningApplications === 'yes' ? 'yes' : 'no',
         submissions: parseInt(editingCandidate.submissions) || 0,
         screenings: parseInt(editingCandidate.screenings) || 0,
         interviews: parseInt(editingCandidate.interviews) || 0,
@@ -97,12 +97,9 @@ const CandidateList = ({ user }) => {
   });
 
   const getStatusBadge = (candidate) => {
-    const total = candidate.morningApplications + candidate.submissions + candidate.screenings + candidate.interviews;
-    if (total === 0) return <Badge bg="secondary">No Activity</Badge>;
-    if (candidate.interviews > 0) return <Badge bg="success">Interviewed</Badge>;
-    if (candidate.screenings > 0) return <Badge bg="warning">Screened</Badge>;
-    if (candidate.submissions > 0) return <Badge bg="info">Submitted</Badge>;
-    return <Badge bg="primary">Applied</Badge>;
+    if (candidate.morningApplications === 'yes') return <Badge bg="success">Yes</Badge>;
+    if (candidate.morningApplications === 'no') return <Badge bg="danger">No</Badge>;
+    return <Badge bg="secondary">-</Badge>;
   };
 
   return (
@@ -168,7 +165,7 @@ const CandidateList = ({ user }) => {
                       <strong>{candidate.candidateName}</strong>
                       {candidate.userId && <small className="text-muted d-block">Self-reported</small>}
                     </td>
-                    <td>{candidate.morningApplications || 0}</td>
+                    <td>{candidate.morningApplications === 'yes' ? 'Yes' : candidate.morningApplications === 'no' ? 'No' : '-'}</td>
                     <td>{candidate.submissions || 0}</td>
                     <td>{candidate.screenings || 0}</td>
                     <td>{candidate.interviews || 0}</td>
@@ -186,22 +183,24 @@ const CandidateList = ({ user }) => {
                       )}
                     </td>
                     <td>
-                      <div className="d-flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline-primary"
-                          onClick={() => handleEdit(candidate)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          onClick={() => handleDelete(candidate.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
+                      {user.role === 'admin' && (
+                        <div className="d-flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline-primary"
+                            onClick={() => handleEdit(candidate)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => handleDelete(candidate.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -253,13 +252,16 @@ const CandidateList = ({ user }) => {
                 <Col md={3}>
                   <Form.Group className="mb-3">
                     <Form.Label>Morning Applications</Form.Label>
-                    <Form.Control
-                      type="number"
+                    <Form.Select
                       name="morningApplications"
                       value={editingCandidate.morningApplications}
                       onChange={handleChange}
-                      min="0"
-                    />
+                      required
+                    >
+                      <option value="">Select</option>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </Form.Select>
                   </Form.Group>
                 </Col>
                 <Col md={3}>
@@ -327,4 +329,4 @@ const CandidateList = ({ user }) => {
   );
 };
 
-export default CandidateList; 
+export default CandidateList;
